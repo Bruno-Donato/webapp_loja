@@ -30,7 +30,7 @@ def graf_barra(var = None, graf = None):
     # Gráfico barras caracteristicas produtos #1
     fig = px.bar(df_teste, y = df_teste.index, x = var)
     fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-    return graf.plotly_chart(fig, use_container_width=True)
+    graf.plotly_chart(fig, use_container_width=True)
 
 def graf_barra1(var = None, graf = None, estado = None):
     df_teste = df_app[df_app['estado'] == estado][var].value_counts().to_frame().head(7)
