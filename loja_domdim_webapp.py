@@ -182,8 +182,9 @@ if periodo == "Todo Período":
         col2.header('')
         col2.subheader('')
         # Gráfico barras
-        df_teste = df_app['vendedor'].value_counts().to_frame().head(7).reset_index()            
-        fig2 = px.bar(df_teste, y = 'index', x = 'vendedor')
+        df_teste = df_app['vendedor'].value_counts().to_frame().head(7).reset_index()
+        df_teste.columns = ['vendedor', 'contagem']            
+        fig2 = px.bar(df_teste, y = 'vendedor', x = 'contagem')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         col2.plotly_chart(fig2, use_container_width=True)       
     else:
@@ -202,7 +203,8 @@ if periodo == "Todo Período":
         col2.subheader('')
         # Gráfico barras 1
         df_teste = df_app[df_app['estado'] == estado]['vendedor'].value_counts().to_frame().head(7).reset_index()
-        fig2 = px.bar(df_teste, y = 'index', x = 'vendedor')
+        df_teste.columns = ['vendedor', 'contagem']            
+        fig2 = px.bar(df_teste, y = 'vendedor', x = 'contagem')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')       
         col2.plotly_chart(fig2, use_container_width=True)               
 else:
@@ -221,7 +223,8 @@ else:
         col2.subheader('')
         # Gráfico barras 1
         df_teste = df_app[df_app['ano'] == int(periodo)]['vendedor'].value_counts().to_frame().head(7).reset_index()
-        fig2 = px.bar(df_teste, y = 'index', x = 'vendedor')
+        df_teste.columns = ['vendedor', 'contagem']            
+        fig2 = px.bar(df_teste, y = 'vendedor', x = 'contagem')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')       
         col2.plotly_chart(fig2, use_container_width=True)  
     else:
@@ -240,7 +243,8 @@ else:
         col2.subheader('')
         # Gráfico barras 1
         df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['vendedor'].value_counts().to_frame().head(7).reset_index()
-        fig2 = px.bar(df_teste, y = 'index', x = 'vendedor')
+        df_teste.columns = ['vendedor', 'contagem']            
+        fig2 = px.bar(df_teste, y = 'vendedor', x = 'contagem')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         col2.plotly_chart(fig2, use_container_width=True)
 
