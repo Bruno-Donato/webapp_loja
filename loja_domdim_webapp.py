@@ -182,8 +182,8 @@ if periodo == "Todo Período":
         col2.header('')
         col2.subheader('')
         # Gráfico barras
-        df_teste = df_app['vendedor'].value_counts().to_frame().head(7)            
-        fig2 = px.bar(df_teste, y = df_teste.index, x = 'vendedor')
+        df_teste = df_app['vendedor'].value_counts().to_frame().head(7).reset_index()            
+        fig2 = px.bar(df_teste, y = 'index', x = 'vendedor')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         col2.plotly_chart(fig2, use_container_width=True)       
     else:
@@ -201,8 +201,8 @@ if periodo == "Todo Período":
         col2.header('')
         col2.subheader('')
         # Gráfico barras 1
-        df_teste = df_app[df_app['estado'] == estado]['vendedor'].value_counts().to_frame().head(7)
-        fig2 = px.bar(df_teste, y = df_teste.index, x = 'vendedor')
+        df_teste = df_app[df_app['estado'] == estado]['vendedor'].value_counts().to_frame().head(7).reset_index()
+        fig2 = px.bar(df_teste, y = 'index', x = 'vendedor')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')       
         col2.plotly_chart(fig2, use_container_width=True)               
 else:
@@ -220,8 +220,8 @@ else:
         col2.header('')
         col2.subheader('')
         # Gráfico barras 1
-        df_teste = df_app[df_app['ano'] == int(periodo)]['vendedor'].value_counts().to_frame().head(7)
-        fig2 = px.bar(df_teste, y = df_teste.index, x = 'vendedor')
+        df_teste = df_app[df_app['ano'] == int(periodo)]['vendedor'].value_counts().to_frame().head(7).reset_index()
+        fig2 = px.bar(df_teste, y = 'index', x = 'vendedor')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')       
         col2.plotly_chart(fig2, use_container_width=True)  
     else:
@@ -239,8 +239,8 @@ else:
         col2.header('')
         col2.subheader('')
         # Gráfico barras 1
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['vendedor'].value_counts().to_frame().head(7)
-        fig2 = px.bar(df_teste, y = df_teste.index, x = 'vendedor')
+        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['vendedor'].value_counts().to_frame().head(7).reset_index()
+        fig2 = px.bar(df_teste, y = 'index', x = 'vendedor')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         col2.plotly_chart(fig2, use_container_width=True)
 
@@ -248,86 +248,86 @@ graf1, graf2, graf3, graf4, = st.columns([2, 2, 2, 2])
 if periodo == "Todo Período":
     if estado == 'Todo Brasil':
         # Gráfico barras 2
-        df_teste = df_app['instrumento'].value_counts().to_frame().head(7)            
-        fig = px.bar(df_teste, y = df_teste.index, x = 'instrumento')
+        df_teste = df_app['instrumento'].value_counts().to_frame().head(7).reset_index()            
+        fig = px.bar(df_teste, y = 'index', x = 'instrumento')
         fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf1.plotly_chart(fig, use_container_width=True)
         # Gráfico barras 3
-        df_teste = df_app['marca'].value_counts().to_frame().head(7)            
-        fig2 = px.bar(df_teste, y = df_teste.index, x = 'marca')
+        df_teste = df_app['marca'].value_counts().to_frame().head(7).reset_index()            
+        fig2 = px.bar(df_teste, y = 'index', x = 'marca')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf2.plotly_chart(fig2, use_container_width=True)
         # Gráfico barras 4
-        df_teste = df_app['canal_venda'].value_counts().to_frame().head(7)            
-        fig3 = px.bar(df_teste, y = df_teste.index, x = 'canal_venda')
+        df_teste = df_app['canal_venda'].value_counts().to_frame().head(7).reset_index()            
+        fig3 = px.bar(df_teste, y = 'index', x = 'canal_venda')
         fig3.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf3.plotly_chart(fig3, use_container_width=True)
         # Gráfico barras 5
-        df_teste = df_app['forma_envio'].value_counts().to_frame().head(7)            
-        fig4 = px.bar(df_teste, y = df_teste.index, x = 'forma_envio')
+        df_teste = df_app['forma_envio'].value_counts().to_frame().head(7).reset_index()            
+        fig4 = px.bar(df_teste, y = 'index', x = 'forma_envio')
         fig4.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf4.plotly_chart(fig4, use_container_width=True)         
     else:
         # Gráfico barras 2
-        df_teste = df_app[df_app['estado'] == estado]['instrumento'].value_counts().to_frame().head(7)
-        fig = px.bar(df_teste, y = df_teste.index, x = 'instrumento')
+        df_teste = df_app[df_app['estado'] == estado]['instrumento'].value_counts().to_frame().head(7).reset_index()
+        fig = px.bar(df_teste, y = 'index', x = 'instrumento')
         fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf1.plotly_chart(fig, use_container_width=True)
         # Gráfico barras 3
-        df_teste = df_app[df_app['estado'] == estado]['marca'].value_counts().to_frame().head(7)
-        fig2 = px.bar(df_teste, y = df_teste.index, x = 'marca')
+        df_teste = df_app[df_app['estado'] == estado]['marca'].value_counts().to_frame().head(7).reset_index()
+        fig2 = px.bar(df_teste, y = 'index', x = 'marca')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf2.plotly_chart(fig2, use_container_width=True)
         # Gráfico barras 4
-        df_teste = df_app[df_app['estado'] == estado]['canal_venda'].value_counts().to_frame().head(7)
-        fig3 = px.bar(df_teste, y = df_teste.index, x = 'canal_venda')
+        df_teste = df_app[df_app['estado'] == estado]['canal_venda'].value_counts().to_frame().head(7).reset_index()
+        fig3 = px.bar(df_teste, y = 'index', x = 'canal_venda')
         fig3.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf3.plotly_chart(fig3, use_container_width=True)
         # Gráfico barras 5
-        df_teste = df_app[df_app['estado'] == estado]['forma_envio'].value_counts().to_frame().head(7)
-        fig4 = px.bar(df_teste, y = df_teste.index, x = 'forma_envio')
+        df_teste = df_app[df_app['estado'] == estado]['forma_envio'].value_counts().to_frame().head(7).reset_index()
+        fig4 = px.bar(df_teste, y = 'index', x = 'forma_envio')
         fig4.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf4.plotly_chart(fig4, use_container_width=True)           
 else:
     if estado == 'Todo Brasil':
         # Gráfico barras 2
-        df_teste = df_app[df_app['ano'] == int(periodo)]['instrumento'].value_counts().to_frame().head(7)
-        fig = px.bar(df_teste, y = df_teste.index, x = 'instrumento')
+        df_teste = df_app[df_app['ano'] == int(periodo)]['instrumento'].value_counts().to_frame().head(7).reset_index()
+        fig = px.bar(df_teste, y = 'index', x = 'instrumento')
         fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')        
         graf1.plotly_chart(fig, use_container_width=True)
         # Gráfico barras 3
-        df_teste = df_app[df_app['ano'] == int(periodo)]['marca'].value_counts().to_frame().head(7)
-        fig2 = px.bar(df_teste, y = df_teste.index, x = 'marca')
+        df_teste = df_app[df_app['ano'] == int(periodo)]['marca'].value_counts().to_frame().head(7).reset_index()
+        fig2 = px.bar(df_teste, y = 'index', x = 'marca')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')        
         graf2.plotly_chart(fig2, use_container_width=True)
         # Gráfico barras 4
-        df_teste = df_app[df_app['ano'] == int(periodo)]['canal_venda'].value_counts().to_frame().head(7)
-        fig3 = px.bar(df_teste, y = df_teste.index, x = 'canal_venda')
+        df_teste = df_app[df_app['ano'] == int(periodo)]['canal_venda'].value_counts().to_frame().head(7).reset_index()
+        fig3 = px.bar(df_teste, y = 'index', x = 'canal_venda')
         fig3.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')        
         graf3.plotly_chart(fig3, use_container_width=True)
         # Gráfico barras 5
-        df_teste = df_app[df_app['ano'] == int(periodo)]['forma_envio'].value_counts().to_frame().head(7)
-        fig4 = px.bar(df_teste, y = df_teste.index, x = 'forma_envio')
+        df_teste = df_app[df_app['ano'] == int(periodo)]['forma_envio'].value_counts().to_frame().head(7).reset_index()
+        fig4 = px.bar(df_teste, y = 'index', x = 'forma_envio')
         fig4.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')        
         graf4.plotly_chart(fig4, use_container_width=True)           
     else:
         # Gráfico barras 2
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['instrumento'].value_counts().to_frame().head(7)
-        fig = px.bar(df_teste, y = df_teste.index, x = 'instrumento')
+        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['instrumento'].value_counts().to_frame().head(7).reset_index()
+        fig = px.bar(df_teste, y = 'index', x = 'instrumento')
         fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf1.plotly_chart(fig, use_container_width=True)
         # Gráfico barras 3
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['marca'].value_counts().to_frame().head(7)
-        fig2 = px.bar(df_teste, y = df_teste.index, x = 'marca')
+        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['marca'].value_counts().to_frame().head(7).reset_index()
+        fig2 = px.bar(df_teste, y = 'index', x = 'marca')
         fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf2.plotly_chart(fig2, use_container_width=True)
         # Gráfico barras 4
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['canal_venda'].value_counts().to_frame().head(7)
-        fig3 = px.bar(df_teste, y = df_teste.index, x = 'canal_venda')
+        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['canal_venda'].value_counts().to_frame().head(7).reset_index()
+        fig3 = px.bar(df_teste, y = 'index', x = 'canal_venda')
         fig3.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf3.plotly_chart(fig3, use_container_width=True)
         # Gráfico barras 5
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['forma_envio'].value_counts().to_frame().head(7)
-        fig4 = px.bar(df_teste, y = df_teste.index, x = 'forma_envio')
+        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['forma_envio'].value_counts().to_frame().head(7).reset_index()
+        fig4 = px.bar(df_teste, y = 'index', x = 'forma_envio')
         fig4.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
         graf4.plotly_chart(fig4, use_container_width=True)
