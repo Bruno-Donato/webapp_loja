@@ -4,7 +4,7 @@ import pandas as pd
 import feather
 import plotly.express as px
 
-st.set_page_config(page_title="Dashboard loja", layout="wide",)
+st.set_page_config(page_title="Dashboard loja", layout="wide")
 
 st.header("Dom-Dim Instrumentos Musicais")
 st.subheader("DASHBOARD INTERATIVO")
@@ -24,13 +24,70 @@ coordenadas_cidades = pd.read_feather(r'data/coordenadas_cidades.feather')
 coordenadas_estados = pd.read_feather(r'data/coordenadas_estados.feather')
 df_app = pd.read_feather(r'data/df_app.feather')
 
+# Definindo funções
+def graf_barra(var = None, graf = None):
+    df_teste = df_app[var].value_counts().to_frame().head(7).reset_index()
+    df_teste.columns = [var, 'contagem']                       
+    fig = px.bar(df_teste, y = var, x = 'contagem')
+    fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
+    return graf.plotly_chart(fig, use_container_width=True)
+
+def graf_barra1(var = None, graf = None, estado = None):
+    df_teste = df_app[df_app['estado'] == estado][var].value_counts().to_frame().head(7).reset_index()
+    df_teste.columns = [var, 'contagem']            
+    fig = px.bar(df_teste, y = var, x = 'contagem')
+    fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
+    return graf.plotly_chart(fig, use_container_width=True)
+
+def graf_barra2(var = None, graf = None, periodo = None):
+    df_teste = df_app[df_app['ano'] == int(periodo)][var].value_counts().to_frame().head(7).reset_index()
+    df_teste.columns = [var, 'contagem']            
+    fig = px.bar(df_teste, y = var, x = 'contagem')
+    fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
+    return graf.plotly_chart(fig, use_container_width=True)
+
+def graf_barra3(var = None, graf = None, periodo = None, estado = None):
+    df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))][var].value_counts().to_frame().head(7).reset_index()
+    df_teste.columns = [var, 'contagem']            
+    fig = px.bar(df_teste, y = var, x = 'contagem')
+    fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
+    return graf.plotly_chart(fig, use_container_width=True)
+
+def linha_df(df = None):
+    df_linha = df.groupby(['ano', 'mes'])['instrumento'].value_counts().to_frame()
+    df_linha.columns = ['quantidade']
+    df_linha = df_linha.reset_index()
+
+    if periodo == 'Todo Período':
+        df_linha = df_linha.groupby(['mes'])['quantidade'].sum().to_frame()
+    else:
+        df_linha = df_linha[df_linha['ano'] == int(periodo)].groupby(['mes'])['quantidade'].sum().to_frame()
+    df_linha = df_linha.reset_index()
+    return df_linha
+
+def df_linha2(df = None):
+    df_linha = df_app.groupby(['estado', 'ano', 'mes'])['instrumento'].value_counts().to_frame()
+    df_linha.columns = ['quantidade']
+    df_linha = df_linha.reset_index()
+    df_linha = df_linha.drop(columns=['instrumento'])
+    if periodo == 'Todo Período':
+        df_linha = df_linha[(df_linha['estado'] == estado)].groupby(['mes'])['quantidade'].sum().to_frame()
+    else:
+        df_linha = df_linha[(df_linha['estado'] == estado) & (df_linha['ano'] == int(periodo))].groupby(['mes'])['quantidade'].sum().to_frame()
+    df_linha = df_linha.reset_index()
+    return df_linha
+
+def graf_linha(df = None):
+    fig = px.line(df, x='mes', y='quantidade', title=f'Vendas {estado.upper()}: {periodo}')
+    fig.update_layout(autosize=False, width=800, height=350)
+    return col1.plotly_chart(fig, use_container_width=False)
+
 # Seleção de período
 col1, col2, col3 = st.columns([2, 2, 2])
 periodo = col1.selectbox("Selecione o ano", ("Todo Período", "2020", "2021", "2022"))
 # Seleção de estado
-estado = col2.selectbox("Selecione o estado", ('Todo Brasil', 'sp', 'mg', 'rj', 'pr', 'rs', 'ba', 'sc', 
-                                               'pe', 'go', 'mt', 'es', 'pb', 'ce', 'df', 'ms', 'ma', 'ro', 
-                                               'pa', 'rn', 'se', 'al', 'am', 'pi', 'rr', 'ap', 'to'))
+estado = col2.selectbox("Selecione o estado", ('Todo Brasil', 'sp', 'mg', 'rj', 'pr', 'rs', 'ba', 'sc', 'pe', 'go', 'mt', 'es', 'pb', 
+                                               'ce', 'df', 'ms', 'ma', 'ro', 'pa', 'rn', 'se', 'al', 'am', 'pi', 'rr', 'ap', 'to'))
 
 col1, col2, col3 = st.columns([4, 2.3, 1.2])
 if periodo == "Todo Período":
@@ -46,7 +103,7 @@ if periodo == "Todo Período":
         fig = px.scatter_mapbox(mapa_total, lat = 'lat_est', lon = 'lon_est', size = '%',
                                 zoom = 2.5, mapbox_style = "open-street-map", hover_name='estado',
                                 color_continuous_scale="bluered", color='vendas', size_max=50)                   
-        fig.update_layout(autosize=True, width=610,height=550)                                      
+        fig.update_layout(autosize=True, width=610,height=550)                                       
         col1.plotly_chart(fig)
         # Tabela com porcentagem e total de vendas por estados/cidades
         col2.header('')
@@ -84,9 +141,9 @@ else:
         # Mapa vendas Brasil/Estados
         fig = px.scatter_mapbox(mapa_ano, lat = 'lat_est', lon = 'lon_est', size = '%',
                                 zoom = 2.5, mapbox_style = "open-street-map", hover_name='estado',
-                                color_continuous_scale="bluered", color='vendas', size_max=50)                           
-        fig.update_layout(autosize=True, width=610,height=550)                                               
-        col1.plotly_chart(fig)       
+                                color_continuous_scale="bluered", color='vendas', size_max=50)                    
+        fig.update_layout(autosize=True, width=610,height=550)                                        
+        col1.plotly_chart(fig)
         # Tabela com porcentagem e total de vendas por estados/cidades
         col2.header('')
         col2.subheader('')
@@ -103,7 +160,7 @@ else:
         # Mapa vendas Brasil/Estados
         fig = px.scatter_mapbox(mapa_ano, lat = 'lat', lon = 'lon',
                                 zoom = 5, mapbox_style = "open-street-map", hover_name='cidade',
-                                color_continuous_scale="bluered", color='vendas', size_max=50)                    
+                                color_continuous_scale="bluered", color='vendas', size_max=50)                   
         fig.update_layout(autosize=True, width=610,height=550)                                        
         col1.plotly_chart(fig)
         # Tabela com porcentagem e total de vendas por estados/cidades
@@ -118,26 +175,26 @@ if periodo == "Todo Período":
         # KPI#1
         col3.metric(label="Total de vendas", value=len(df_app))
         # KPI#2
-        col3.metric(label="Mês com mais vendas", value=df_app['mes'].value_counts().keys()[0])
+        col3.metric(label="Mês com mais vendas", value=df_app['mes'].value_counts(ascending=False).keys()[0])
         # KPI#3
         col3.metric(label="Tempo de entrega", value=str(df_app['tempo_entrega'].mode())[5:12].replace('days', 'dias'))
         # KPI#4
-        col3.metric(label="Instrumento mais vendido", value=df_app['instrumento'].value_counts().keys()[0])
+        col3.metric(label="Instrumento mais vendido", value=df_app['instrumento'].value_counts(ascending=False).keys()[0])
         # KPI#5
-        col3.metric(label="Marca mais vendida", value=df_app['marca'].value_counts().keys()[0])
+        col3.metric(label="Marca mais vendida", value=df_app['marca'].value_counts(ascending=False).keys()[0])
     else:
         col3.header('')
         col3.subheader('')
         # KPI#1
-        col3.metric(label="Total de vendas", value=len(df_app[df_app['estado'] == estado]))
+        col3.metric(label="Total de vendas", value= len(df_app[df_app['estado'] == estado]))
         # KPI#2
-        col3.metric(label="Mês com mais vendas", value=df_app[df_app['estado'] == estado]['mes'].value_counts().keys()[0])
+        col3.metric(label="Mês com mais vendas", value=df_app[df_app['estado'] == estado]['mes'].value_counts(ascending=False).keys()[0])
         # KPI#3
         col3.metric(label="Tempo de entrega", value=str(df_app[df_app['estado'] == estado]['tempo_entrega'].mode())[5:12].replace('days', 'dias'))
         # KPI#4
-        col3.metric(label="Instrumento mais vendido", value=df_app[df_app['estado'] == estado]['instrumento'].value_counts().keys()[0])
+        col3.metric(label="Instrumento mais vendido", value=df_app[df_app['estado'] == estado]['instrumento'].value_counts(ascending=False).keys()[0])
         # KPI#5
-        col3.metric(label="Marca mais vendida", value=df_app[df_app['estado'] == estado]['marca'].value_counts().keys()[0])
+        col3.metric(label="Marca mais vendida", value=df_app[df_app['estado'] == estado]['marca'].value_counts(ascending=False).keys()[0])
 else:
     if estado == 'Todo Brasil':
         col3.header('')
@@ -145,209 +202,79 @@ else:
         # KPI#1
         col3.metric(label="Total de vendas", value=len(df_app[df_app['ano'] == int(periodo)]))
         # KPI#2
-        col3.metric(label="Mês com mais vendas", value=df_app[df_app['ano'] == int(periodo)]['mes'].value_counts().keys()[0])
+        col3.metric(label="Mês com mais vendas", value=df_app[df_app['ano'] == int(periodo)]['mes'].value_counts(ascending=False).keys()[0])
         # KPI#3
         col3.metric(label="Tempo de entrega", value=str(df_app[df_app['ano'] == int(periodo)]['tempo_entrega'].mode())[5:12].replace('days', 'dias'))
         # KPI#4
-        col3.metric(label="Instrumento mais vendido", value=df_app[df_app['ano'] == int(periodo)]['instrumento'].value_counts().keys()[0])
+        col3.metric(label="Instrumento mais vendido", value=df_app[df_app['ano'] == int(periodo)]['instrumento'].value_counts(ascending=False).keys()[0])
         # KPI#5
-        col3.metric(label="Marca mais vendida", value=df_app[df_app['ano'] == int(periodo)]['marca'].value_counts().keys()[0])
+        col3.metric(label="Marca mais vendida", value=df_app[df_app['ano'] == int(periodo)]['marca'].value_counts(ascending=False).keys()[0])
     else:
         col3.header('')
-        col3.subheader('')
+        col3.subheader('')    
         # KPI#1
         col3.metric(label="Total de vendas", value=len(df_app[(df_app['ano'] == int(periodo)) & (df_app['estado'] == estado)]))
         # KPI#2
-        col3.metric(label="Mês com mais vendas", value=df_app[(df_app['ano'] == int(periodo)) & (df_app['estado'] == estado)]['mes'].value_counts().keys()[0])
+        col3.metric(label="Mês com mais vendas", value=df_app[(df_app['ano'] == int(periodo)) & (df_app['estado'] == estado)]['mes'].value_counts(ascending=False).keys()[0])
         # KPI#3
         col3.metric(label="Tempo de entrega", value=str(df_app[(df_app['ano'] == int(periodo)) & (df_app['estado'] == estado)]['tempo_entrega'].mode())[5:12].replace('days', 'dias'))
         # KPI#4
-        col3.metric(label="Instrumento mais vendido", value=df_app[(df_app['ano'] == int(periodo)) & (df_app['estado'] == estado)]['instrumento'].value_counts().keys()[0])
+        col3.metric(label="Instrumento mais vendido", value=df_app[(df_app['ano'] == int(periodo)) & (df_app['estado'] == estado)]['instrumento'].value_counts(ascending=False).keys()[0])
         # KPI#5
-        col3.metric(label="Marca mais vendida", value=df_app[(df_app['ano'] == int(periodo)) & (df_app['estado'] == estado)]['marca'].value_counts().keys()[0])
+        col3.metric(label="Marca mais vendida", value=df_app[(df_app['ano'] == int(periodo)) & (df_app['estado'] == estado)]['marca'].value_counts(ascending=False).keys()[0])
 
 col1, col2 = st.columns([10, 3])
 if periodo == "Todo Período":
     if estado == 'Todo Brasil':
-        # Definindo dataframe
-        df_linha = df_app.groupby(['ano', 'mes'])['instrumento'].value_counts().to_frame()
-        df_linha.columns = ['quantidade']
-        df_linha = df_linha.reset_index()
-        df_linha = df_linha.groupby(['mes'])['quantidade'].sum().to_frame()
-        df_linha = df_linha.reset_index()
-        # Grafico linhas vendas
-        fig = px.line(df_linha, x='mes', y='quantidade', title=f'Vendas {estado}: {periodo}')
-        fig.update_layout(autosize=False, width=800, height=350)
-        col1.plotly_chart(fig, use_container_width=False)
+        # Definindo dataframe e gráfico de linha
+        linha_df(df_app)
+        graf_linha(linha_df(df_app))
         col2.header('')
         col2.subheader('')
-        # Gráfico barras
-        df_teste = df_app['vendedor'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['vendedor', 'contagem']            
-        fig2 = px.bar(df_teste, y = 'vendedor', x = 'contagem')
-        fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        col2.plotly_chart(fig2, use_container_width=True)       
+        graf_barra(var = 'vendedor', graf = col2)
     else:
-        # Definindo dataframe
-        df_linha = df_app.groupby(['estado', 'ano', 'mes'])['instrumento'].value_counts().to_frame()
-        df_linha.columns = ['quantidade']
-        df_linha = df_linha.reset_index()
-        df_linha = df_linha.drop(columns=['instrumento'])
-        df_linha = df_linha[(df_linha['estado'] == estado)].groupby(['mes'])['quantidade'].sum().to_frame()
-        df_linha = df_linha.reset_index()
-        # Gráfico linhas vendas
-        fig = px.line(df_linha, x='mes', y='quantidade', title=f'Vendas {str(estado).upper()}: {periodo}')
-        fig.update_layout(autosize=False, width=800, height=350)
-        col1.plotly_chart(fig, use_container_width=False)
+        # Definindo dataframe e gráfico de linha
+        df_linha2(df_app)
+        graf_linha(df_linha2(df_app))
         col2.header('')
         col2.subheader('')
-        # Gráfico barras 1
-        df_teste = df_app[df_app['estado'] == estado]['vendedor'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['vendedor', 'contagem']            
-        fig2 = px.bar(df_teste, y = 'vendedor', x = 'contagem')
-        fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')       
-        col2.plotly_chart(fig2, use_container_width=True)               
+        graf_barra1(var = 'vendedor', graf = col2, estado = estado)              
 else:
     if estado == 'Todo Brasil':
-        # Definindo dataframe
-        df_linha = df_app.groupby(['ano', 'mes'])['instrumento'].value_counts().to_frame()
-        df_linha.columns = ['quantidade']
-        df_linha = df_linha.reset_index()
-        df_linha = df_linha[df_linha['ano'] == int(periodo)].groupby(['mes'])['quantidade'].sum().to_frame()
-        df_linha = df_linha.reset_index()
-        # Gráfico linha vendas
-        fig = px.line(df_linha, x='mes', y='quantidade', title=f'Vendas {str(estado).upper()}: {periodo}')
-        fig.update_layout(autosize=False, width=800, height=350)
-        col1.plotly_chart(fig, use_container_width=False)
+        # Definindo dataframe e gráfico de linha
+        linha_df(df_app)
+        graf_linha(linha_df(df_app))
         col2.header('')
         col2.subheader('')
-        # Gráfico barras 1
-        df_teste = df_app[df_app['ano'] == int(periodo)]['vendedor'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['vendedor', 'contagem']            
-        fig2 = px.bar(df_teste, y = 'vendedor', x = 'contagem')
-        fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')       
-        col2.plotly_chart(fig2, use_container_width=True)  
+        graf_barra2(var = 'vendedor', graf = col2, periodo = periodo)    
     else:
-        # Definindo dataframe
-        df_linha = df_app.groupby(['estado', 'ano', 'mes'])['instrumento'].value_counts().to_frame()
-        df_linha.columns = ['quantidade']
-        df_linha = df_linha.reset_index()
-        df_linha = df_linha.drop(columns=['instrumento'])
-        df_linha = df_linha[(df_linha['estado'] == estado) & (df_linha['ano'] == int(periodo))].groupby(['mes'])['quantidade'].sum().to_frame()
-        df_linha = df_linha.reset_index()
-        # Gráfico linha vendas
-        fig = px.line(df_linha, x='mes', y='quantidade', title=f'Vendas {str(estado).upper()}: {periodo}')
-        fig.update_layout(autosize=False, width=800, height=350)
-        col1.plotly_chart(fig, use_container_width=False)
+        # Definindo dataframe e gráfico de linha
+        df_linha2(df_app)
+        graf_linha(df_linha2(df_app))
         col2.header('')
         col2.subheader('')
-        # Gráfico barras 1
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['vendedor'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['vendedor', 'contagem']            
-        fig2 = px.bar(df_teste, y = 'vendedor', x = 'contagem')
-        fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        col2.plotly_chart(fig2, use_container_width=True)
+        graf_barra3(var = 'vendedor', graf = col2, periodo = periodo, estado = estado)      
 
 graf1, graf2, graf3, graf4, = st.columns([2, 2, 2, 2])                  
 if periodo == "Todo Período":
     if estado == 'Todo Brasil':
-        # Gráfico barras 2
-        df_teste = df_app['instrumento'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['instrumento', 'contagem']            
-        fig = px.bar(df_teste, y = 'instrumento', x = 'contagem')
-        fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf1.plotly_chart(fig, use_container_width=True)
-        # Gráfico barras 3
-        df_teste = df_app['marca'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['marca', 'contagem']                
-        fig2 = px.bar(df_teste, y = 'marca', x = 'contagem')
-        fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf2.plotly_chart(fig2, use_container_width=True)
-        # Gráfico barras 4
-        df_teste = df_app['canal_venda'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['canal_venda', 'contagem']                
-        fig3 = px.bar(df_teste, y = 'canal_venda', x = 'contagem')
-        fig3.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf3.plotly_chart(fig3, use_container_width=True)
-        # Gráfico barras 5
-        df_teste = df_app['forma_envio'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['forma_envio', 'contagem']           
-        fig4 = px.bar(df_teste, y = 'forma_envio', x = 'contagem')
-        fig4.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf4.plotly_chart(fig4, use_container_width=True)         
+        graf_barra('instrumento', graf1)
+        graf_barra('marca', graf2)
+        graf_barra('canal_venda', graf3)
+        graf_barra('forma_envio', graf4)           
     else:
-        # Gráfico barras 2
-        df_teste = df_app[df_app['estado'] == estado]['instrumento'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['instrumento', 'contagem']    
-        fig = px.bar(df_teste, y = 'instrumento', x = 'contagem')
-        fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf1.plotly_chart(fig, use_container_width=True)
-        # Gráfico barras 3
-        df_teste = df_app[df_app['estado'] == estado]['marca'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['marca', 'contagem']    
-        fig2 = px.bar(df_teste, y = 'marca', x = 'contagem')
-        fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf2.plotly_chart(fig2, use_container_width=True)
-        # Gráfico barras 4
-        df_teste = df_app[df_app['estado'] == estado]['canal_venda'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['canal_venda', 'contagem']    
-        fig3 = px.bar(df_teste, y = 'canal_venda', x = 'contagem')
-        fig3.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf3.plotly_chart(fig3, use_container_width=True)
-        # Gráfico barras 5
-        df_teste = df_app[df_app['estado'] == estado]['forma_envio'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['forma_envio', 'contagem']
-        fig4 = px.bar(df_teste, y = 'forma_envio', x = 'contagem')
-        fig4.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf4.plotly_chart(fig4, use_container_width=True)           
+        graf_barra1('instrumento', graf = graf1, estado = estado)
+        graf_barra1('marca', graf = graf2, estado = estado)
+        graf_barra1('canal_venda', graf = graf3, estado = estado)
+        graf_barra1('forma_envio', graf = graf4, estado = estado)               
 else:
-    if estado == 'Todo Brasil':
-        # Gráfico barras 2
-        df_teste = df_app[df_app['ano'] == int(periodo)]['instrumento'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['instrumento', 'contagem']    
-        fig = px.bar(df_teste, y = 'instrumento', x = 'contagem')
-        fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')        
-        graf1.plotly_chart(fig, use_container_width=True)
-        # Gráfico barras 3
-        df_teste = df_app[df_app['ano'] == int(periodo)]['marca'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['marca', 'contagem']    
-        fig2 = px.bar(df_teste, y = 'marca', x = 'contagem')
-        fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')        
-        graf2.plotly_chart(fig2, use_container_width=True)
-        # Gráfico barras 4
-        df_teste = df_app[df_app['ano'] == int(periodo)]['canal_venda'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['canal_venda', 'contagem']    
-        fig3 = px.bar(df_teste, y = 'canal_venda', x = 'contagem')
-        fig3.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')        
-        graf3.plotly_chart(fig3, use_container_width=True)
-        # Gráfico barras 5
-        df_teste = df_app[df_app['ano'] == int(periodo)]['forma_envio'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['forma_envio', 'contagem']    
-        fig4 = px.bar(df_teste, y = 'forma_envio', x = 'contagem')
-        fig4.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')        
-        graf4.plotly_chart(fig4, use_container_width=True)           
-    else:
-        # Gráfico barras 2
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['instrumento'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['instrumento', 'contagem']    
-        fig = px.bar(df_teste, y = 'instrumento', x = 'contagem')
-        fig.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf1.plotly_chart(fig, use_container_width=True)
-        # Gráfico barras 3
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['marca'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['marca', 'contagem']    
-        fig2 = px.bar(df_teste, y = 'marca', x = 'contagem')
-        fig2.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf2.plotly_chart(fig2, use_container_width=True)
-        # Gráfico barras 4
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['canal_venda'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['canal_venda', 'contagem']    
-        fig3 = px.bar(df_teste, y = 'canal_venda', x = 'contagem')
-        fig3.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf3.plotly_chart(fig3, use_container_width=True)
-        # Gráfico barras 5
-        df_teste = df_app[(df_app['estado'] == estado) & (df_app['ano'] == int(periodo))]['forma_envio'].value_counts().to_frame().head(7).reset_index()
-        df_teste.columns = ['forma_envio', 'contagem']    
-        fig4 = px.bar(df_teste, y = 'forma_envio', x = 'contagem')
-        fig4.update_layout(autosize=False, width=500, height=300, yaxis=dict(title=''), yaxis_categoryorder='total ascending')
-        graf4.plotly_chart(fig4, use_container_width=True)
+    if estado == 'Todo Brasil':    
+        graf_barra2('instrumento', graf = graf1, periodo = periodo)
+        graf_barra2('marca', graf = graf2, periodo = periodo)
+        graf_barra2('canal_venda', graf = graf3, periodo = periodo)
+        graf_barra2('forma_envio', graf = graf4, periodo = periodo)             
+    else:      
+        graf_barra3('instrumento', graf = graf1, periodo = periodo, estado = estado)
+        graf_barra3('marca', graf = graf2, periodo = periodo, estado = estado)
+        graf_barra3('canal_venda', graf = graf3, periodo = periodo, estado = estado)
+        graf_barra3('forma_envio', graf = graf4, periodo = periodo, estado = estado)
